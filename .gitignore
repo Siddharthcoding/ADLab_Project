@@ -1,0 +1,7 @@
+data/
+adenv/
+__pycache__/
+*.pyc
+*.pkl
+*.jsonl
+*.gz
