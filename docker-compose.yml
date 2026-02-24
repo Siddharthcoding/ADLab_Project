@@ -3,6 +3,7 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15-alpine
+    container_name: cp_postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -16,31 +17,76 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - cp_network
 
   redis:
     image: redis:7-alpine
+    container_name: cp_redis
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - cp_network
 
   backend:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cp_backend
     env_file:
       - .env
     environment:
       - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/cp_roadmap
       - REDIS_URL=redis://redis:6379/0
       - POSTGRES_SERVER=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=cp_roadmap
+      - SECRET_KEY=${SECRET_KEY}
+      - BACKEND_CORS_ORIGINS=["http://localhost:5173","http://localhost:3000","http://frontend:5173"]
     ports:
       - "8000:8000"
     volumes:
-      - .:/app
+      - ./app:/app/app
       - ./data:/app/data
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - cp_network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: cp_frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules  # Anonymous volume for node_modules
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+    networks:
+      - cp_network
+    restart: unless-stopped
 
 volumes:
   postgres_data:
   redis_data:
+
+networks:
+  cp_network:
+    driver: bridge

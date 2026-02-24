@@ -1,0 +1,172 @@
+/* import google fonts used by the design (optional but recommended) */
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono&family=DM+Sans:wght@400;500;700&family=Syne:wght@700;800&display=swap');
+
+/* Tailwind layers */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────
+   Design tokens — moved into :root
+   (was previously inside an invalid @theme block)
+   ───────────────────────────────────── */
+:root {
+  /* Backgrounds */
+  --color-bg-primary: #080c14;
+  --color-bg-secondary: #0d1420;
+  --color-bg-card: #111827;
+  --color-bg-card-hover: #151f2e;
+  --color-bg-elevated: #1a2332;
+
+  /* Map aliases so var(--bg-primary) works alongside Tailwind's auto-export */
+  --bg-primary: var(--color-bg-primary);
+  --bg-secondary: var(--color-bg-secondary);
+  --bg-card: var(--color-bg-card);
+  --bg-card-hover: var(--color-bg-card-hover);
+  --bg-elevated: var(--color-bg-elevated);
+
+  /* Borders */
+  --color-border-subtle: rgba(255, 255, 255, 0.06);
+  --color-border-medium: rgba(255, 255, 255, 0.12);
+  --color-border-accent: rgba(0, 245, 160, 0.3);
+
+  --border-subtle: var(--color-border-subtle);
+  --border-medium: var(--color-border-medium);
+  --border-accent: var(--color-border-accent);
+
+  /* Text */
+  --color-text-primary: #f0f4ff;
+  --color-text-secondary: #8899b4;
+  --color-text-muted: #4a5568;
+  --color-text-accent: #00f5a0;
+
+  --text-primary: var(--color-text-primary);
+  --text-secondary: var(--color-text-secondary);
+  --text-muted: var(--color-text-muted);
+  --text-accent: var(--color-text-accent);
+
+  /* Accents */
+  --color-accent-green: #00f5a0;
+  --color-accent-green-dim: rgba(0, 245, 160, 0.15);
+  --color-accent-green-glow: rgba(0, 245, 160, 0.4);
+  --color-accent-blue: #3b82f6;
+  --color-accent-blue-dim: rgba(59, 130, 246, 0.15);
+  --color-accent-orange: #f97316;
+  --color-accent-orange-dim: rgba(249, 115, 22, 0.15);
+  --color-accent-purple: #a855f7;
+  --color-accent-purple-dim: rgba(168, 85, 247, 0.15);
+  --color-accent-red: #ef4444;
+
+  --accent-green: var(--color-accent-green);
+  --accent-green-dim: var(--color-accent-green-dim);
+  --accent-green-glow: var(--color-accent-green-glow);
+  --accent-blue: var(--color-accent-blue);
+  --accent-blue-dim: var(--color-accent-blue-dim);
+  --accent-orange: var(--color-accent-orange);
+  --accent-orange-dim: var(--color-accent-orange-dim);
+  --accent-purple: var(--color-accent-purple);
+  --accent-purple-dim: var(--color-accent-purple-dim);
+  --accent-red: var(--color-accent-red);
+
+  /* Typography */
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  /* Shadows */
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 30px rgba(0, 245, 160, 0.15);
+  --shadow-glow-blue: 0 0 30px rgba(59, 130, 246, 0.2);
+
+  /* transitions */
+  --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Base resets ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--bg-elevated); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ── Selection ── */
+::selection { background: var(--accent-green-dim); color: var(--accent-green); }
+
+/* ── Noise texture overlay ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+/* ── Global element resets ── */
+button { font-family: var(--font-body); cursor: pointer; border: none; outline: none; }
+input, textarea, select { font-family: var(--font-body); }
+a { text-decoration: none; color: inherit; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+
+/* ── Keyframe animations ── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes pulseGlow {
+  0%,100% { box-shadow: 0 0 20px rgba(0,245,160,0.2); }
+  50%     { box-shadow: 0 0 40px rgba(0,245,160,0.4); }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+@keyframes scanline {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+/* Convenience utility classes */
+.animate-fade-in      { animation: fadeIn      0.5s ease forwards; }
+.animate-fade-in-left { animation: fadeInLeft  0.4s ease forwards; }
+
+/* ── Skeleton loader ── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-card)    25%,
+    var(--bg-elevated) 50%,
+    var(--bg-card)    75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
