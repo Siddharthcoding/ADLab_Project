@@ -18,6 +18,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 COPY app/ ./app/
 COPY alembic/ ./alembic/
 COPY alembic.ini .
+COPY data/ ./data/
 
 # Create non-root user
 RUN useradd -m -u 1000 appuser && \
