@@ -1,7 +1,8 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, JSON, DateTime, Float, Boolean, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from app.db.base_class import Base  # change this line
+from app.db.base_class import Base
+
 class Roadmap(Base):
     __tablename__ = "roadmaps"
 
@@ -20,7 +21,12 @@ class Roadmap(Base):
     
     ml_insights = Column(Text, nullable=True)
     
+    # NEW: Track completed problems
+    completed_problems = Column(JSON, default=list)  # List of problem indices or IDs
+    progress_percentage = Column(Float, default=0.0)
+    
     created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
     is_active = Column(Boolean, default=True)
     
     user = relationship("User", back_populates="roadmaps")

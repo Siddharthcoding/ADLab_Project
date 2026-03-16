@@ -6,7 +6,7 @@ from app.db.session import get_db
 from app.core.dependencies import get_current_user
 from app.models.user import User
 from app.models.roadmap import Roadmap
-from app.schemas.roadmap import RoadmapGenerate, RoadmapResponse
+from app.schemas.roadmap import RoadmapGenerate, RoadmapResponse, ProblemToggle
 from app.services.ml_service import MLService
 
 router = APIRouter()
@@ -63,4 +63,38 @@ async def get_roadmap(
     roadmap = result.scalar_one_or_none()
     if not roadmap:
         raise HTTPException(status_code=404, detail="Roadmap not found")
+    return roadmap
+
+# NEW: Toggle problem completion
+@router.post("/{roadmap_id}/toggle-problem", response_model=RoadmapResponse)
+async def toggle_problem_completion(
+    roadmap_id: int,
+    toggle: ProblemToggle,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    result = await db.execute(
+        select(Roadmap).where(
+            Roadmap.id == roadmap_id,
+            Roadmap.user_id == current_user.id
+        )
+    )
+    roadmap = result.scalar_one_or_none()
+    if not roadmap:
+        raise HTTPException(status_code=404, detail="Roadmap not found")
+    
+    completed = roadmap.completed_problems or []
+    
+    if toggle.completed:
+        if toggle.problem_index not in completed:
+            completed.append(toggle.problem_index)
+    else:
+        if toggle.problem_index in completed:
+            completed.remove(toggle.problem_index)
+    
+    roadmap.completed_problems = completed
+    roadmap.progress_percentage = (len(completed) / len(roadmap.problems)) * 100 if roadmap.problems else 0
+    
+    await db.commit()
+    await db.refresh(roadmap)
     return roadmap

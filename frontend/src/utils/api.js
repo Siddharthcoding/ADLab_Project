@@ -1,7 +1,9 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL}/api/v1`,
+  baseURL: import.meta.env.VITE_API_URL 
+    ? `${import.meta.env.VITE_API_URL}/api/v1`
+    : '/api/v1',
   timeout: 180000,
   headers: {
     'Content-Type': 'application/json',
@@ -27,7 +29,9 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       // Token expired or invalid
       localStorage.removeItem('token')
-      window.location.href = '/login'
+      if (window.location.pathname !== '/auth') {
+        window.location.href = '/auth?tab=login'
+      }
     }
     
     const message = error.response?.data?.detail 
